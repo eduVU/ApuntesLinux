@@ -235,7 +235,7 @@ Let's see an example of how to manage aliases:
 >
 > This alias is temporary. A way to make it permament would be to edit one of the bashrc files (`/~/.basrc` for example) and then run `source` to load the changes.
 >
-> user@host:~$ source /~/.bashrc
+> user@host:~$ source /home/user/.bashrc
 >
 > Finally, an alias can be deleted by using `unalias`.
 >
@@ -285,7 +285,7 @@ It is possible to add more destinations to the `$PATH` variables so the custom s
 
 - Permanently modifying the `$PATH` variable: this is done by changing one of the bashrc files and setting the same command inside the file:
 
-    > user@host:~$ nano /~/.bashrc  
+    > user@host:~$ nano /home/user/.bashrc  
     > export PATH="/home:$PATH"
 
 Finally the `which` command is very useful when trying to determine the location of the files for a given script/command. This will allow the user to know if the target command is already inside `$PATH` and will provide the path that is necessary to append in case that it is not included in the variable. 
@@ -413,7 +413,7 @@ Here is a list of the most commonly used wildcards for globbing with some exampl
     >
     > Example 2: listing all files whose names begin with any character and have `est.txt` in their names.
     >
-    > user@host:~ $ ls ?est.txt
+    > user@host:~ $ ls ?est.txt  
     > best.txt  test.txt
 
 - **Asterisk (*)**: this wildcard matches any number of characters.
@@ -480,7 +480,8 @@ Here is a list of the most commonly used wildcards for globbing with some exampl
 
     > Example: list all files that have 4 characters in their names and end with `txt` AND list all files that do not have the word `ile` in the middle of their names.  
     >
-    > user@host:~ $ ls ?(????.txt|!(\*ile\*))
+    > user@host:~ \$ shopt -s extglob  
+    > user@host:~ \$ ls ?(????.txt|!(\*ile\*))  
     > ascii.log  best.bash  best.doc  best.txt football.doc test.txt
 
 - **Double quotes ("")**: the double quotes allow to define strings of text. The full expression given inside the quotes will be criteria for the matching results or for performing the required tasks, when using the double quotes, special characters (e.g: `$` for variables, `\` for line breaks, etc.) will not be ignored.
@@ -494,14 +495,14 @@ Here is a list of the most commonly used wildcards for globbing with some exampl
 
     > Example: show in the terminal the name of the variable `$Example` explicitly.
     >
-    > user@host:~ $ echo '$Example'
+    > user@host:~ $ echo '$Example'  
     > $Example
 
 - **Backslash (\\)**: it does the same as the single quotes, the difference is that it is a single-use character and will only ignore the special characters of the text that comes immediately after the backslash.
 
     > Example: using both double quotes and backlash to decide whether or not to show the contents of a variable.
     >
-    > user@host:~ $ echo "\$Example says: $Example"
+    > user@host:~ $ echo "\$Example says: $Example"  
     > $Example says: This is an example
 
 ## Using wildcards for executing commands
@@ -555,4 +556,3 @@ Here is a list with some of the most elemental wildcards that are useful when ru
 
     Sending processes to the background is useful when a long process will be executed and it is necessary to still be able to access the terminal to continue working.
 
-    
