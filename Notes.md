@@ -1,10 +1,19 @@
 ## Table of contents.
 1. [Basic navigation commands](#basic-navigation-commands)
+
 2. [Quick notes on Linux Kernel and Shell](#quick-notes-on-linux-kernel-and-shell)
+
 3. [Linux Directory Structure](#linux-directory-structure)
+
 4. [Creating aliases](#creating-aliases)
+
 5. [Creating variables and scripts](#creating-variables-and-scripts)
 
+6. [Manipulating files and directories](#manipulating-files-and-directories)
+
+7. [Introduction to Bash Globbing](#introduction-to-bash-globbing)
+
+8. [Using wildcards for executing commands](#using-wildcards-for-executing-commands)
 
 ## Basic navigation commands
 When using Linux on a production level, the common practice is to manage and maintain the system by using only the terminal. Since no mouse or GUI (Graphical User Interface) is installed on the servers, it is important to know at least some of the commands that are necessary to navigate through the multiple files and directories and visualize their contents.
@@ -285,3 +294,265 @@ Finally the `which` command is very useful when trying to determine the location
 > user@host:~ $ which pwd  
 > /usr/bin/pwd
 
+## Manipulating files and directories
+
+Since everything is a file or a directory inside Linux, it is important to know how to perform basic tasks on both data structures. Here is a recap of the most elemental commands for this purpose:
+
+- **touch**: as mentioned earlier, this command allows the user to create an empty file. There are also ways to create multiple files at once, for example, running `touch file{1..100}` will create the files named `file1`, `file2`, etc.
+
+- **mkdir**: this will create an empty directory if the given name(s) do(es) not exist. There are multiple uses for this command: a user can create a single directory or multiple directories at once. Also, it is posible to create a directory and subdirectories for it in a single use of the command.
+
+    > Here is an example of how to use `mkdir` to create a directory called `Test` inside `/etc`:  
+    >
+    > user@host:~ $ mkdir /etc/Test  
+    >   
+    > user@host:~ $ ls /etc/  
+    > Test
+    >
+    > Here is an example of how to create multiple directories at once:
+    >
+    > user@host:~ $ mkdir Test Test2
+    >
+    > user@host:~ $ ls ~  
+    > Test
+    > Test2
+    >
+    > Here is an example of how to create a directory/subdirectory using the `-p` option:
+    >
+    > user@host:~ $ mkdir -p ./Directory/Subdirectory
+    >
+    > user@host:~ $ ls Directory/
+    > Subdirectory
+
+- **cp**: this command copies a file or directory in the given location. It is important to keep in mind that, when running `cp` to copy a directory, it will copy the directory but not its contents. To copy all the contents inside the directory, it is necessary to include the `-r/-R` option.
+
+    > Here is an example of how to copy a file called `sample` that is inside `/etc` to the `/var/lib` directory:  
+    >
+    > user@host:~ $ cp /etc/sample /var/lib
+    >
+    > user@host:~ $ ls /var/lib  
+    > sample
+    >
+    > Now, an example of how to copy a directory called `SampleDir` and all its contents inside `/usr/local`:  
+    >
+    > user@host:~ $ cp -R SampleDir /usr/local
+
+- **mv**: this command has two uses, it lets the user to move a file/directory to a new location or to rename a file/directory.
+
+    > First, let us see an example of how to use `mv` to relocate a file called `sample` that is inside `/usr/local` to the `/mnt` directory:  
+    >
+    > user@host:~ $ mv /usr/local/sample /mnt 
+    >
+    > Now, here is en example of how to rename the same `sample` file to `process`. Note that a rename occurs where the second part of the command does not specify a full path, but just a name that is not currently in use. 
+    > 
+    > user@host:~ $ mv /usr/local/sample process
+    >
+    > user@host:~ $ ls /usr/local
+    > process
+
+- **rmdir**: this command removes **empty** directories. Please take into consideration that running this command to remove a directory that is not empty will cause its contents to become orphaned.
+
+    > To remove a empty directory it is only necessary to provide the location of the target directory: 
+    > 
+    > user@host:~ $ rmdir /usr/local/SampleDir
+
+- **rm**: this command is useful to remove files and directories. It also allows a user to remove directories that are not empty with the recursive (`-r` or `-R`) option.
+
+    > Here is an example of how to remove multiple files that are stored in different locations:  
+    > user@host:~ $ rm /usr/local/sample /mnt/sample test
+    >
+    > In this next example the `rm -R` is called to delete the `SampleDir` directory and all its contents:  
+    > user@host:~ $ rm -R SampleDir
+
+## Introduction to Bash Globbing
+The Bash shell offers multiple tools to search files, directories and the contents of them and also to filter those searches based on patterns and specific characters. 
+
+There are multiple ways to implement globbing, for example by using the `grep`, `ls` and `rm` commands.
+
+> About the `grep` command: this command allows the user to filter the output of any other commands and only show the lines that match the desired pattern(s). `grep` is very handy for the use of globbing and allows to filter big outputs (lists, files, logs, etc.) and only show the valuable information.
+>  
+> This command is almost always combined with other commands to filter their output, for this, the pipe (`|`) is used.  
+>> The pipe (`|`) allows to concatenate commands, so the output of a first command is processed by the second command, and so on.  
+>> Here is an example of how to use pipes to first list all the contents of a directory with `ls` and then only show the bottom 3 lines with the use of `tail`:
+>>
+>> user@host:~ $ ls ./SampleDir | tail -3  
+>> bottom  
+>> three  
+>> lines
+
+Here is a list of the most commonly used wildcards for globbing with some examples:
+
+> Note: all the examples for this section are based on the following fictionary filesystem:
+>
+> /Examples
+>   - ascii.log
+>   - best.bash
+>   - best.doc
+>   - best.txt
+>   - File1
+>   - File2
+>   - File3
+>   - File4
+>   - File5
+>   - file1
+>   - file2
+>   - file3
+>   - file4
+>   - file5
+>   - files.doc
+>   - football.doc
+>   - test.txt
+>   - The following variable has been set: $Example='This is an example'
+
+- **Question mark (?)**: it is used as a wildcard to match any single character. It is also possible to use a 'n' amount of `?` symbols to match an 'n' amount of single characters.
+
+    > Example 1: listing all files whose names have 4 characters and that end with an extension of 3 characters.
+    >
+    > user@host:~ $ ls ????.???  
+    > best.log  best.txt  test.txt
+    >
+    > Example 2: listing all files whose names begin with any character and have `est.txt` in their names.
+    >
+    > user@host:~ $ ls ?est.txt
+    > best.txt  test.txt
+
+- **Asterisk (*)**: this wildcard matches any number of characters.
+
+    > Example 1: listing all the files that have `f` as their first character.
+    >
+    > user@host:~ $ ls f*  
+    > file1  file2  file3  file4  file5  files.doc  football.doc
+    >
+    > Example 2: listing all the files that have the string `est` in the middle of their names.
+    >
+    > user@host:~ $ ls \*est\*  
+    > best.bash  best.doc  best.txt  test.txt
+
+- **Square brackets ([])**: the square brackets allow to match one of the characters that is in the range specified inside the brackets. The ranges can be the following:
+
+    - Lowercase letters: `[a-z]`
+    - Uppercase letters: `[A-Z]`
+    - Numeric digits: `[0-9]`
+
+    Those categories can be combined, for example, to establish a range for all lowercase and uppercase letters: `[a-zA-Z]`.
+
+    Also, it is possible to specify the characters that should be matched instead of a range of characters. For example, by using `[aU6]` the only possible matches will be the letter `a`, the letter `U` or the number `6`.
+
+    > Example 1: listing all files that start with any letter from `a` to `g`, both uppercase and lowercase, and that end with any number from `1` to `8`.
+    >
+    > user@host:~ $ ls [a-gA-G]*[1-8]  
+    > File1 file1 File2 file2 File3 file3 File4 file4 File5 file5
+    >
+    > Example 2: listing all files that start with `a`, `b` or `t`.
+    >
+    > user@host:~ $ ls [abt]*  
+    > ascii.log  best.bash  best.doc  best.txt  test.txt
+
+- **Exclamation mark (!)**: this character negates the pattern, so instead of looking for the files that match the pattern it will look for the files that **do not** match the pattern. Alternatively, the caret (**^**) can be used for the same purpose.
+
+    > Example 1: list all the files that **do not** start with lowercase letters from `a` to `c` and that **do** end with `.txt`.
+    >
+    > user@host:~ $ ls [!a-c]*.txt  
+    > text.txt
+    >
+    > Example 2: list all the files that **do not** have the word `ile` in their names.  
+    >
+    > user@host:~ $ ls !(\*ile\*)  
+    > ascii.log  best.bash  best.doc  best.txt  football.doc  test.txt
+
+- **Dollar sign ($)**: this character allows to filter information based on which files match the pattern at the **end** of their name.
+
+    > Example: list all files inside the directory and then show only the lines that end with the lowercase letters `c` or `h`.  
+    >
+    > user@host:~ $ ls | grep [ch]\$  
+    > best.bash  
+    > best.doc  
+    > files.doc  
+    > football.doc  
+
+- **Pipe (|)**: this character allows the user to execute more than one pattern at the same time. For using this tool, it is recommended to enable the extended globbing features by running this command: `shopt -s extglob`. Also, one of the following flags must be provided at the start of the command to retrieve the expected results:
+
+    - @(patterns): match one occurrence of the patterns.
+    - ?(patterns): match zero or one ocurrences of the patterns.
+    - !(patterns): match everything that does not match the patterns.
+
+    The basic syntax for the use of multiple patterns is the following: `<flag>(<pattern1>|<pattern2>|etc.)`.
+
+    > Example: list all files that have 4 characters in their names and end with `txt` AND list all files that do not have the word `ile` in the middle of their names.  
+    >
+    > user@host:~ $ ls ?(????.txt|!(\*ile\*))
+    > ascii.log  best.bash  best.doc  best.txt football.doc test.txt
+
+- **Double quotes ("")**: the double quotes allow to define strings of text. The full expression given inside the quotes will be criteria for the matching results or for performing the required tasks, when using the double quotes, special characters (e.g: `$` for variables, `\` for line breaks, etc.) will not be ignored.
+
+    > Example: show in the terminal the contents of the variable `$Example`.
+    >
+    > user@host:~ $ echo "$Example"  
+    > This is an example
+
+- **Single quotes ('')**: similar to double quotes, they are useful for defining strings. The diference is that single quotes will ignore all special charactes and will treat them as normal characters instead.
+
+    > Example: show in the terminal the name of the variable `$Example` explicitly.
+    >
+    > user@host:~ $ echo '$Example'
+    > $Example
+
+- **Backslash (\\)**: it does the same as the single quotes, the difference is that it is a single-use character and will only ignore the special characters of the text that comes immediately after the backslash.
+
+    > Example: using both double quotes and backlash to decide whether or not to show the contents of a variable.
+    >
+    > user@host:~ $ echo "\$Example says: $Example"
+    > $Example says: This is an example
+
+## Using wildcards for executing commands
+
+When running commands from the terminal, it is often necessary to perform multiple tasks in sequence or under specific conditions. In those situations, the use of wildcards to add an extra layer of logic to command execution becomes handy. 
+
+Here is a list with some of the most elemental wildcards that are useful when running commands:
+
+- **Semicolon (;)**: this allows to concatenate commands, so the sytax is `command1; command2; etc.`. It is important to keep in mind that, when using command concatenation, the output of one command does not affect the output of the next one.
+
+- **Pipe (|)**: as previously explained, it concatenates commands, but the output of one command is the input of the next command in the sequence.
+
+- **Double ampersand (&&)**: it works as the `AND` operator for Bash, so the first command HAS TO be successful in order to proceed to the next command in the list. If one of the commands fail, then the subsequent commands will not be executed.
+
+    > Example: list all the contents in the `/home/user` directory and then show in the terminal a custom message. If the first command fails (for example, if the user does not have permissions to access `/home/user`), then the custom message will not be shown.
+    >
+    > user@host:~ $ ls && echo 'Success'  
+    > CustomDirectory  
+    > Success
+
+- **Double pipe (||)**: it works as the `OR` operator for Bash, so the second command in the sequence will only be executed if the first command fails. In case that the first command is successful, the next command will not be executed. 
+
+    > Example: list all the contents in the `/home/user` directory and then show in the terminal a custom message. If the first command fails (for example, if the user does not have permissions to access `/home/user`), then the custom message will be shown.
+    >
+    > user@host:~ $ ls || echo 'Task failed'  
+    > Error: cannot access '/home/user': Permission denied    
+    > Task failed
+
+- **Ampersand (&)**: allows the user to send a process to the background. This means that the process will continue running, but the terminal will be accessible in the meantime. When a process is sent to the background, the command prompt will show the `Process ID` (`PID`) for the command so the user can identify it.
+
+    Using the `bg` command, the user can see the processes that have been sent to the backgorund, and with the use of the `fg` command the process can be brought back again to the foreground (the process will be run on the terminal and it will be blocked until the process is finished).
+
+    > Example: first, the `sleep n` command is called, this command forces a wait time of n seconds.
+    >
+    > user@host:~ $ sleep 15
+    >
+    > While the command is running (15 seconds) the terminal is not available for additional tasks, se here the sleep process will be sent to the background:
+    >
+    > user@host:~ $ sleep 15 &  
+    > [1] 15092
+    >
+    > Now the user can still do other tasks while the `sleep` command is running. Linux assigned the `PID 15092` and the `Job number 1` to this process so it can be identified easily. If the `bg` command is run, Linux will tell how many jobs are in the background:
+    >
+    > user@host:~ $ bg  
+    > bash: bg: job 1 already in the background
+    >
+    > Finally, by running `fg` the process goes to the foreground again.
+    >
+    > user@host:~ $ fg
+    > sleep 15
+
+    Sending processes to the background is useful when a long process will be executed and it is necessary to still be able to access the terminal to continue working.
+
+    
