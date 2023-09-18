@@ -364,7 +364,24 @@ Since everything is a file or a directory inside Linux, it is important to know 
     > In this next example the `rm -R` is called to delete the `SampleDir` directory and all its contents:  
     > user@host:~ $ rm -R SampleDir
 
+The Linux filesystem uses a data structure called `inode` in order to access the files. An inode is a piece of metadata for each file/directory that contains the following data:
+
+- Size.
+- Creation date.
+- Modified date.
+- User and group.
+- Permissions.
+- Link counter.
+- Pointer to the actual data of the file/directory.
+
+Inodes are stored in a reserved location of the volume, Linux uses inodes to access to all the information previously listed without having to go to the actual file and check it. The `ls -l` command allows the user to visualize the inodes of the files.
+
+An inode stores general information of a file, except its name or location. This because there could be multiple copies of the same set of data with different names and stored in different places. The name of a file is known as a hard link, so basically each directory has a list of hard links inside of it. A file is composed of a pair of `(hard link, inode number)`: there could be multiple files that have different hard links (or names) but the same inode number, so all of those files would be pointing to the same bunch of data, for each valid hard link that exists for an inode, the link counter of the inode increases by one. If the link counter of an inode drops to zero, then the inode disappears and the information gets permanently deleted. It is possible to see the inode number associated to a file by running the `ls -i` command.
+
+Additional to hard links, there also exist the `soft links`. A soft link in Linux, also known as `symbolic link` is basically the same as a `shortcut` in Windows: it is an independent file with its own inode that serves as an alternative route to access the same set of data that a hard link references. It is important to keep in mind that if the file referenced by the soft link is deleted, the soft link will no longer work. A soft link can be created using the `ln -s` command with the following syntax: `ls -s <file> <link name>`.
+
 ## Introduction to Bash Globbing
+
 The Bash shell offers multiple tools to search files, directories and the contents of them and also to filter those searches based on patterns and specific characters. 
 
 There are multiple ways to implement globbing, for example by using the `grep`, `ls` and `rm` commands.
